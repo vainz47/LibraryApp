@@ -105,7 +105,7 @@ public class MenuBuku extends AppCompatActivity {
                                 ListAdapter newAdapter = new ListAdapter(MenuBuku.this, tempBuku);
                                 mListView.setAdapter(newAdapter);
                             } else {
-                                // action jika hasil kosong
+                                System.out.println("MASUK GA");
                             }
                         } else {
                             ListAdapter newAdapter = new ListAdapter(MenuBuku.this, listBuku);
