@@ -3,7 +3,6 @@ package com.example.perpus_online;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
@@ -12,7 +11,6 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -44,7 +42,8 @@ public class MenuBuku extends AppCompatActivity {
     ArrayList<Buku> listBuku;
     ListAdapter mAdapter;
     ListView mListView;
-    SearchView search;
+    SearchView mSearch;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,9 +66,8 @@ public class MenuBuku extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
 
-        tambah_buku = (ExtendedFloatingActionButton)findViewById(R.id.tambah_buku);
+        tambah_buku = (ExtendedFloatingActionButton) findViewById(R.id.tambah_buku);
         mListView = findViewById(R.id.list_buku);
-        search = findViewById(R.id.search);
 
         FirebaseApp.initializeApp(this);
         mFirebaseInstance = FirebaseDatabase.getInstance();
@@ -78,8 +76,7 @@ public class MenuBuku extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 listBuku = new ArrayList<>();
-
-                for (DataSnapshot mDataSnapshot: snapshot.getChildren()){
+                for (DataSnapshot mDataSnapshot : snapshot.getChildren()) {
                     Buku mBuku = mDataSnapshot.getValue(Buku.class);
                     mBuku.setKode(mDataSnapshot.getKey());
                     listBuku.add(mBuku);
@@ -87,6 +84,63 @@ public class MenuBuku extends AppCompatActivity {
 
                 mAdapter = new ListAdapter(MenuBuku.this, listBuku);
                 mListView.setAdapter(mAdapter);
+                System.out.println("DATAAAA : " + listBuku.size());
+
+                mSearch = findViewById(R.id.search);
+                mSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String s) {
+                        if (!s.isEmpty()) {
+                            System.out.println("MASUK GA");
+
+                            ArrayList<Buku> tempBuku = new ArrayList<>();
+                            System.out.println(listBuku.size());
+                            for (int i = 0; i < listBuku.size(); i++) {
+                                if (listBuku.get(i).getJudul().toLowerCase().contains(s.toLowerCase()) || listBuku.get(i).getPenerbit().toLowerCase().contains(s.toLowerCase()) || listBuku.get(i).getTahunterbit().toLowerCase().contains(s.toLowerCase())) {
+                                    tempBuku.add(listBuku.get(i));
+                                    System.out.println("MASUK GA");
+                                }
+                            }
+                            if (!(tempBuku.size() == 0)) {
+                                ListAdapter newAdapter = new ListAdapter(MenuBuku.this, tempBuku);
+                                mListView.setAdapter(newAdapter);
+                            } else {
+                                // action jika hasil kosong
+                            }
+                        } else {
+                            ListAdapter newAdapter = new ListAdapter(MenuBuku.this, listBuku);
+                            mListView.setAdapter(newAdapter);
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String s) {
+                        if (!s.isEmpty()) {
+                            System.out.println("MASUK GA");
+
+                            ArrayList<Buku> tempBuku = new ArrayList<>();
+                            System.out.println(listBuku.size());
+                            for (int i = 0; i < listBuku.size(); i++) {
+                                if (listBuku.get(i).getJudul().toLowerCase().contains(s.toLowerCase()) || listBuku.get(i).getPenerbit().toLowerCase().contains(s.toLowerCase()) || listBuku.get(i).getTahunterbit().toLowerCase().contains(s.toLowerCase())) {
+                                    tempBuku.add(listBuku.get(i));
+                                    System.out.println("MASUK GA");
+                                }
+                            }
+                            if (!(tempBuku.size() == 0)) {
+                                ListAdapter newAdapter = new ListAdapter(MenuBuku.this, tempBuku);
+                                mListView.setAdapter(newAdapter);
+                            } else {
+                                // action jika hasil kosong
+                            }
+                        } else {
+                            ListAdapter newAdapter = new ListAdapter(MenuBuku.this, listBuku);
+                            mListView.setAdapter(newAdapter);
+                        }
+                        return false;
+                    }
+                });
+
             }
 
             @Override
@@ -104,29 +158,6 @@ public class MenuBuku extends AppCompatActivity {
             }
         });
 
-        SearchView searchView = (SearchView ) MenuItemCompat.getActionView(search);
-
-        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                if(!TextUtils.isEmpty(s.trim()))}{
-
-
-            }
-             else{
-                 User
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                ArrayList<Buku> listBuku; = new ArrayList<>();
-                for(Buku buku
-                mAdapter = new ListAdapter(MenuBuku.this, listBuku);
-                mListView.setAdapter(mAdapter);
-
-
-            }
-        });
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -135,7 +166,10 @@ public class MenuBuku extends AppCompatActivity {
                 onDataClick(listBuku.get(position), position);
             }
         });
+
+
     }
+
     public static void setWindowFlag(Activity activity, final int bits, boolean on) {
 
         Window win = activity.getWindow();
@@ -184,11 +218,11 @@ public class MenuBuku extends AppCompatActivity {
         builder.setTitle("Tambah Data Buku");
         View view = getLayoutInflater().inflate(R.layout.layout_edit_buku, null);
 
-        edit_judul = (EditText)view.findViewById(R.id.edit_judul_buku);
-        edit_pengarang = (EditText)view.findViewById(R.id.edit_pengarang);
-        edit_penerbit = (EditText)view.findViewById(R.id.edit_penerbit);
-        edit_tahun_terbit = (EditText)view.findViewById(R.id.edit_tahun);
-        edit_desc = (EditText)view.findViewById(R.id.edit_desc);
+        edit_judul = (EditText) view.findViewById(R.id.edit_judul_buku);
+        edit_pengarang = (EditText) view.findViewById(R.id.edit_pengarang);
+        edit_penerbit = (EditText) view.findViewById(R.id.edit_penerbit);
+        edit_tahun_terbit = (EditText) view.findViewById(R.id.edit_tahun);
+        edit_desc = (EditText) view.findViewById(R.id.edit_desc);
 
         builder.setView(view);
 
@@ -205,7 +239,7 @@ public class MenuBuku extends AppCompatActivity {
 
                 if (!regJudul.isEmpty() && !regPengarang.isEmpty() && !regPenerbit.isEmpty() && !regTahun.isEmpty()
                         && !regDesc.isEmpty()) {
-                    submitDataBuku(new Buku(regJudul,regPengarang,regPenerbit,regTahun,regDesc,peminjam));
+                    submitDataBuku(new Buku(regJudul, regPengarang, regPenerbit, regTahun, regDesc, peminjam));
                 } else {
                     Toast.makeText(MenuBuku.this, "Data harus di isi bun!", Toast.LENGTH_LONG).show();
                 }
@@ -227,11 +261,11 @@ public class MenuBuku extends AppCompatActivity {
         builder.setTitle("Edit Data Buku");
         View view = getLayoutInflater().inflate(R.layout.layout_edit_buku, null);
 
-        edit_judul = (EditText)view.findViewById(R.id.edit_judul_buku);
-        edit_pengarang = (EditText)view.findViewById(R.id.edit_pengarang);
-        edit_penerbit = (EditText)view.findViewById(R.id.edit_penerbit);
-        edit_tahun_terbit = (EditText)view.findViewById(R.id.edit_tahun);
-        edit_desc = (EditText)view.findViewById(R.id.edit_desc);
+        edit_judul = (EditText) view.findViewById(R.id.edit_judul_buku);
+        edit_pengarang = (EditText) view.findViewById(R.id.edit_pengarang);
+        edit_penerbit = (EditText) view.findViewById(R.id.edit_penerbit);
+        edit_tahun_terbit = (EditText) view.findViewById(R.id.edit_tahun);
+        edit_desc = (EditText) view.findViewById(R.id.edit_desc);
 
         builder.setView(view);
 
@@ -279,6 +313,7 @@ public class MenuBuku extends AppCompatActivity {
             }
         });
     }
+
     private void hapusDataBuku(Buku buku) {
         if (mDatabaseReference != null) {
             mDatabaseReference.child("buku").child(buku.getKode())
